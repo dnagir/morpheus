@@ -3,7 +3,7 @@ Morpheus - the power of neo4j in easy Ruby library
 
 This gem gives you a way of using the REST API of neo4j graph database.
 
-The main goals and differences to other libraries are:
+The main goals and differences with other libraries are:
 
 - It doesn't try to mimic ActiveRecord or ORM library as the concepts are different.
 - It forces you to think in terms of graph database, still preserving most of the conventions and semantics from Rails.
