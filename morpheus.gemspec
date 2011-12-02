@@ -7,9 +7,9 @@ Gem::Specification.new do |s|
   s.version     = Morpheus::VERSION
   s.authors     = ["Dmytrii Nagirniak"]
   s.email       = ["dnagir@gmail.com"]
-  s.homepage    = ""
-  s.summary     = %q{Easy to use neo4j REST API in Rails or as standalone library.}
-  s.description = %q{Model your application in Ruby, persist to the neo4j graph database.}
+  s.homepage    = "https://github.com/dnagir/morpheus"
+  s.summary     = %q{Rubysh neo4j REST API for Rails or as standalone library.}
+  s.description = %q{Model your application in Ruby, persist and query with neo4j graph database.}
 
   s.rubyforge_project = "morpheus"
 
