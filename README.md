@@ -13,9 +13,8 @@ The main goals and differences with other libraries are:
 - Non-blocking operations.
 - It is not just a wrapper over the REST API but rather comprehensive tool to leverage Ruby as much as possible.
 - It can be used as standalone gem or as part of the Rails app.
-- Allow to transparently reuse the code on either client or a server (via extensions mechanism)^.
+- Allow to transparently reuse the code on either client or server (via extensions mechanism) - maybe too ambitious, but why not?!
 
-Things with [*^*] may be a little too ambitious. But that's the whole point :)
 
 Installation
 ==================================================
@@ -23,7 +22,7 @@ Installation
 With Rails
 --------------------------------------------------
 
-1. Add `gem morpheus` to the `Gemfile` and `bundle install`.
+1. Add `gem 'morpheus'` to the `Gemfile` and `bundle install`.
 2. Run the generator: `bundle exec rails g morpheus:install`.
 
 Standalone
@@ -42,9 +41,10 @@ Simple standalone
 ```ruby
 require 'morpheus'
 
-class User < Morpheus::NodeBase
+class User < Morpheus::Base
   # or if you don't want to inherit:
-  # include Morpheus::Model::Node
+  # include Morpheus::Node
+  relates_to :user, :as => :supervisor
 end
 
 db = Morpheus::Database.new.connect # Will use the default settings
@@ -55,6 +55,13 @@ db.users.save! me # This creates the graph: ROOT-users->me
 me_again = db.users.first
 
 me == me_again # => true
+
+# Set the properties on the relationship
+# TBD
+boss = User.new db, name: 'Seve'
+me.supervisor = me
+me.supervisor ????? # me.
+
 ```
 
 In the future examples I'll skip boilerplate code such as initiating `db`, requiring this gem etc.
@@ -105,8 +112,6 @@ end
 
 Relationships - one-to-one
 --------------------------------------------------
-
-TBD
 
 ```ruby
 class Person < Morpheus::NodeBase
