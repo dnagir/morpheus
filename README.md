@@ -173,6 +173,44 @@ museum.visited # [he, she]
 park.visited # [he]
 ```
 
+Traversal
+==================================================
+
+The traversal API available uses pure Ruby syntax and chooses the best suitable query language automatically (is it a prophet or what?).
+
+- Every method call (except `select` or similar internal methods) defines the traversing relationship.
+- Every block near the method call defines a condition on the end-side node of the relationship.
+- Every `where` clause applied defines a condition on a relationship.
+- Query must end with: `select` call with a block of values returned.
+
+
+Examples:
+
+```ruby
+# Find all users who are liked
+db.query.users.likes.select
+
+
+# All employees of the company with ID=123
+db.query(123).employee.select
+
+# All employees of the existing company object
+company.query.employee.select
+
+
+
+# All my friends that that have 'A' in the name and like somebody
+me.query.friend{ name =~ /A/ }.likes.select { friend }
+
+# All my friends and all of their friends and all of their friends with the friendship longer than 1 year
+me.query.friend([1..2]).where(started >= 1.year_ago).select
+
+
+# If everything fails, use Cypher
+db.query(:cypher).map_to(User).select("START s=node(0) MATCH s-[:users]->()-[:likes]->u RETURN u")
+```
+
+
 Connection
 --------------------------------------------------
 
