@@ -20,15 +20,20 @@ Things with [*^*] may be a little too ambitious. But that's the whole point :)
 Installation
 ==================================================
 
+With Rails
+--------------------------------------------------
 
-Using
-==================================================
+1. Add `gem morpheus` to the `Gemfile` and `bundle install`.
+2. Run the generator: `bundle exec rails g morpheus:install`.
 
 Standalone
 --------------------------------------------------
 
+Just require the gem: `require 'morpheus'`.
+Make sure it is installed in your system gems or with bundler.
 
-Examples
+
+Usage by Examples
 ==================================================
 
 Simple standalone
@@ -55,7 +60,7 @@ me == me_again # => true
 In the future examples I'll skip boilerplate code such as initiating `db`, requiring this gem etc.
 Let me know if something isn't obvious from the context.
 
-CRUD
+CRUD (can be used with Rails controllers)
 --------------------------------------------------
 
 ```ruby
@@ -183,10 +188,36 @@ Rails Generators
 
 TBD
 
+- install
+- model
+- controller
+- scaffold
+
 Non-Blocking Operations
 ==================================================
 
-TBD
+By default all the requests will be dispatched asynchronously and the execution will not block.
+This means that you can execute multiple independent request in parallel without any changes to your code.
+
+If you will access a data that hasn't yet been fetched, the current thread will be blocked until the results will be returned.
+
+This means that you can do the following:
+
+```ruby
+me = db.fetch User, 123
+he = db.fetch User, 345
+
+me.name
+he.name
+```
+
+And the 2 requests will be executed in parallel (thus will take almost twice less time overall).
+The execution will only block when you access any data (`me.name`) until the response will have been processed.
+
+
+TBD: Exmplain how to configure
+
+
 
 Additional Utilities
 ==================================================
