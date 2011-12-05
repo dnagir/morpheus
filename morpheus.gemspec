@@ -20,9 +20,13 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activesupport', '>= 3.1'
   s.add_dependency 'activemodel', '>= 3.1'
+  s.add_dependency 'multi_json'
+  s.add_dependency 'recursive-open-struct'
 
   s.add_development_dependency "rspec"
   s.add_development_dependency "guard"
+  s.add_development_dependency "fakeweb"
+
   s.add_development_dependency "guard-rspec"
   s.add_development_dependency "rb-fsevent"
   s.add_development_dependency "ruby_gntp"

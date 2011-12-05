@@ -15,6 +15,10 @@ module Morpheus
         @properties[name.to_sym]
       end
 
+      def get_properties
+        @properties || {}
+      end
+
       def is_a_property_getter?(name, *args)
         args.length == 0 && (name.to_s =~ /^\w+$/)
       end

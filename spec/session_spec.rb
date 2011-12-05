@@ -1,36 +1,14 @@
 require 'spec_helper'
-module Morpheus
-
-  class Database
-    attr_accessor :protocol, :server, :port
-    def initialize
-      @protocol, @server, @port = 'http://', 'localhost', 7474
-    end
-  end
-
-  module Sessions
-    class BaseSession
-    end
-
-    class SyncSession
-    end
-
-    class EmSynchronySession
-    end
-  end
-end
-
-describe Morpheus::Database do
-  its(:protocol)  { should == 'http://' }
-  its(:server)    { should == 'localhost' }
-  its(:port)      { should == 7474 }
-
-  describe "#prepare_api!" do
-    it "should fetch the API data"
-  end
-end
 
 describe Morpheus::Sessions::BaseSession do
+  let(:db) do
+    Morpheus.stub(:database).and_return double('DB').as_null_object
+    Morpheus.database
+  end
+
+  before   { db.stub_chain(:service_root, :reference_node).and_return 'http://localhost:7474/db/data/node/123' }
+  its(:reference_node_id) { should == 123}
+  its(:reference_node)    { should be_a Morpheus::ReferenceNode }
 end
 
 describe Morpheus::Sessions::SyncSession do
