@@ -1,9 +1,8 @@
 require 'spec_helper'
 
-describe Morpheus::Base do
+describe Morpheus::Node do
   let(:person_class) do
-    Class.new do
-      include Morpheus::NodeMixin
+    Class.new(Morpheus::Node) do
       relation :likes, :hates
     end
   end

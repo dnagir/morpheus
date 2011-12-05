@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Morpheus::Relationship do
-  let(:from)  { Morpheus::Base.new }
-  let(:to)    { Morpheus::Base.new }
+  let(:from)  { double('first') }
+  let(:to)    { double('secnd') }
   let(:type)  { :likes }
   subject     { Morpheus::Relationship.new(type, from, to) }
 
@@ -44,28 +44,26 @@ describe Morpheus::Relationship do
   end
 
   describe "equality" do
-    let(:node1) { double('first') }
-    let(:node2) { double('secnd') }
     def rel(type, n1, n2)
       Morpheus::Relationship.new type, n1, n2
     end
 
     it "should be equal with same from, to and type attributes" do
-      rel(:likes, node1, node2).should == rel(:likes, node1, node2)
+      rel(:likes, from, to).should == rel(:likes, from, to)
     end
 
     it "should not be equal when type is different" do
-      rel(:likes, node1, node2).should_not == rel(:liked, node1, node2)
+      rel(:likes, from, to).should_not == rel(:liked, from, to)
     end
 
     it "should not be equal to nil" do
-      rel(:likes, node1, node2).should_not == nil
+      rel(:likes, from, to).should_not == nil
     end
 
     it "should behave well in array" do
-      r1 = rel(:likes, node1, node2)
-      r2 = rel(:likes, node1, node2)
-      r3 = rel(:liked, node1, node2)
+      r1 = rel(:likes, from, to)
+      r2 = rel(:likes, from, to)
+      r3 = rel(:liked, from, to)
       [r1].should == [r2]
       [r1].should include r2
       [r1].should_not == [r3]

@@ -1,6 +1,6 @@
 module Morpheus
 
-  module NodeMixin
+  module ActsAsNode
     extend ActiveSupport::Concern
 
     included do
@@ -101,8 +101,8 @@ module Morpheus
   end
 
 
-  class Base
-    include NodeMixin
+  class Node
+    include ActsAsNode
   end
 
 
