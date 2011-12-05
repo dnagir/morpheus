@@ -37,8 +37,6 @@ describe Morpheus::ActsAsPersistent do
   its(:persisted?) { should be_false }
 
   describe "#save_without_validation" do
-    subject { person_class.new }
-
     it "should not validate" do
       subject.should_not_receive :valid?
       subject.save_without_validation
@@ -70,34 +68,32 @@ describe Morpheus::ActsAsPersistent do
   end
 
   describe "#destroy and #destroy!" do
-    subject { person_class.new }
-      it "should be ignored for new object" do
-        session.should_not_receive(:delete)
+    it "should be ignored for new object" do
+      session.should_not_receive(:delete)
+      subject.destroy!
+      subject.destroy
+    end
+
+    context "when object exists" do
+      before { subject.mark_as_persisted 123 }
+      its(:destroy)  { should == true }
+      its(:destroy!) { should == true }
+
+      it "should queue the DELETE operation" do
+        session.should_receive(:delete).with(:relationships, 123)
         subject.destroy!
+      end
+
+      it "should queue the DELETE operation (non-bang)" do
+        session.should_receive(:delete).with(:relationships, 123)
         subject.destroy
       end
 
-      context "when object exists" do
-        before { subject.mark_as_persisted 123 }
-        its(:destroy)  { should == true }
-        its(:destroy!) { should == true }
-
-        it "should queue the DELETE operation" do
-          session.should_receive(:delete).with(:relationships, 123)
-          subject.destroy!
-        end
-
-        it "should queue the DELETE operation (non-bang)" do
-          session.should_receive(:delete).with(:relationships, 123)
-          subject.destroy
-        end
-
-        it "should handle cascades"
-      end
+      it "should handle cascades"
+    end
   end
 
   describe "#save" do
-    subject { person_class.new }
     context "when valid" do
       before { subject.stub(:valid?).and_return true }
       its(:save)  { should be_true }
@@ -109,7 +105,6 @@ describe Morpheus::ActsAsPersistent do
   end
 
   describe "#save!" do
-    subject { person_class.new }
     context "when valid" do
       before { subject.stub(:valid?).and_return true }
       its(:save!)  { should be_true }
@@ -127,6 +122,32 @@ describe Morpheus::ActsAsPersistent do
     it "should queue GET" do
       session.should_receive(:get).with(person_class, :relationships, 123)
       subject.get(123)
+    end
+  end
+
+  describe "#udpate_attributes" do
+    it "should assign properties from hash" do
+      result = subject.update_attributes :name => 'Dima', 'twitter' => '@dnagir'
+      result.should be_true
+      subject.get_property(:name).should == 'Dima'
+      subject.get_property('twitter').should == '@dnagir'
+    end
+
+    it "should return true when validation is successful" do
+      subject.stub(:valid?).and_return true
+      subject.update_attributes(:name => 'Dima').should be_true
+    end
+
+    it "should return false when validation fails" do
+      subject.stub(:valid?).and_return false
+      subject.update_attributes(:name => 'Dima').should be_false
+    end
+  end
+
+  describe "#update_attributes!" do
+    it "should throw if validation fails" do
+      subject.stub(:valid?).and_return false
+      lambda { subject.update_attributes!(:name => 'Dima') }.should raise_error Morpheus::ValidationError
     end
   end
 end

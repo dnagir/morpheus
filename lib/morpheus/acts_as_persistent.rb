@@ -70,13 +70,24 @@ module Morpheus
         end
       end
 
-      def update_attributes
-        raise 'TODO'
+      def assign_attributes(new_attributes, options={})
+        #TODO: This doesn't realy belong to persistence. It's much closer to the properties
+        #TODO: This is overly trustfull, need to support mass_assignment options
+        new_attributes.each_pair do |k, v|
+          set_property(k, v)
+        end
       end
 
-      def update_attributes!
-        raise 'TODO'
+      def update_attributes(new_attributes)
+        assign_attributes(new_attributes)
+        save
       end
+
+      def update_attributes!(new_attributes)
+        assign_attributes(new_attributes)
+        save!
+      end
+
     end
 
     module ClassMethods
