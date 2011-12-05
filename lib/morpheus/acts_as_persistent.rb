@@ -1,4 +1,7 @@
 module Morpheus
+  class ValidationError < Exception
+  end
+
   module ActsAsPersistent
     extend ActiveSupport::Concern
     included do
@@ -18,11 +21,7 @@ module Morpheus
         @id = new_id
       end
 
-      def save
-        raise 'TODO'
-      end
-
-      def save!
+      def save_without_validation
         if persisted?
           _session.update(self.class.api_endpoint, id, get_properties)
         else
@@ -30,12 +29,45 @@ module Morpheus
         end
       end
 
+      def save
+        if respond_to?(:valid?)
+          if valid?
+            save_without_validation
+            true
+          else
+            false
+          end
+        else
+          save_without_validation
+          true
+        end
+      end
+
+      def save!
+        if respond_to?(:valid?)
+          if valid?
+            save_without_validation
+            true
+          else
+            raise ValidationError #TODO: Add the errors
+          end
+        else
+          save_without_validation
+          true
+        end
+      end
+
       def destroy
-        raise 'TODO'
+        destroy!
       end
 
       def destroy!
-        _session.delete(self.class.api_endpoint, id)
+        if persisted?
+          _session.delete(self.class.api_endpoint, id)
+          true
+        else
+          false
+        end
       end
 
       def update_attributes
