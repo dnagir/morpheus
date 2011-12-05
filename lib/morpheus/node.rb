@@ -1,31 +1,4 @@
-require 'active_model'
-
 module Morpheus
-  module HasProperties
-    extend ActiveSupport::Concern
-
-    module InstanceMethods
-      def set_property(name, value)
-        name = name.to_s
-        name = name[0..name.length-2] if name[-1] == '='
-        @properties ||= {}
-        @properties[name.to_sym] = value
-      end
-
-      def get_property(name)
-        return nil unless @properties
-        @properties[name.to_sym]
-      end
-
-      def is_a_property_getter?(name, *args)
-        args.length == 0 && (name.to_s =~ /^\w+$/)
-      end
-
-      def is_a_property_setter?(name, *args)
-        name.to_s[-1] == '='
-      end
-    end
-  end
 
   module NodeMixin
     extend ActiveSupport::Concern
@@ -127,35 +100,6 @@ module Morpheus
     end
   end
 
-  class Relationship
-    include HasProperties
-    attr_reader :type, :from, :to
-
-    def initialize(type, from, to)
-      @type, @from, @to = type.to_sym, from, to
-    end
-
-    def self.new_with_direction(type, from, to, direction=nil)
-      from, to = to, from if direction == :in
-      new(type, from, to)
-    end
-
-    def ==(other)
-      return false unless other
-      type == other.type and from == other.from and to == other.to
-    end
-
-    def method_missing(method, *args, &block)
-      #TODO: Redefine respond_to? and respond_to_missing?
-      if is_a_property_getter?(method, *args)
-        get_property(method)
-      elsif is_a_property_setter?(method, *args)
-        set_property(method, args[0])
-      else
-        super
-      end
-    end
-  end
 
   class Base
     include NodeMixin
