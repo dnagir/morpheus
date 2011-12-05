@@ -1,12 +1,39 @@
 require 'active_model'
 
 module Morpheus
+  module HasProperties
+    extend ActiveSupport::Concern
+
+    module InstanceMethods
+      def set_property(name, value)
+        name = name.to_s
+        name = name[0..name.length-2] if name[-1] == '='
+        @properties ||= {}
+        @properties[name.to_sym] = value
+      end
+
+      def get_property(name)
+        return nil unless @properties
+        @properties[name.to_sym]
+      end
+
+      def is_a_property_getter?(name, *args)
+        args.length == 0 && (name.to_s =~ /^\w+$/)
+      end
+
+      def is_a_property_setter?(name, *args)
+        name.to_s[-1] == '='
+      end
+    end
+  end
+
   module NodeMixin
     extend ActiveSupport::Concern
 
     included do
       include ActiveModel::Validations
       include ActiveModel::Conversion
+      include HasProperties
     end
 
     module InstanceMethods
@@ -17,62 +44,73 @@ module Morpheus
       def method_missing(method, *args, &block)
         #TODO: Redefine respond_to? and respond_to_missing?
         name = method.to_s
-        assigning = name[-1] == '='
-        if assigning
-          set_property(name[0..name.length-2], args[0]) if assigning
+        bang = name[-1] == '!'
+
+        if bang
+          # person.likes! # All relations for :likes
+          # person.likes!(:in) # All incomming relations for :likes
+          get_relations(name, args[0])
         elsif args.length == 0
-          # person.name
-          # person.likes
+          # person.name # Property
+          # person.likes # Related nodes
           if self.class.has_relation?(name)
-            get_relation(name)
+            get_relation_nodes(name)
           else
             get_property(name)
           end
         elsif args.length == 1
-          # person.likes(:in)
-          # person.likes(her)
-          arg = args[0]
-          arg.respond_to?(:to_sym) ? get_relation(name, arg) : set_relation(name, :out, arg)
+          # person.name = 'abc' # Set the property
+          # person.likes(her) # Set relation to her
+          # person.likes(:in) # Get incomming :likes relations
+          if is_a_property_setter?(name, *args)
+            set_property(name, args[0])
+          else
+            arg = args[0]
+            arg.respond_to?(:to_sym) ? get_relation_nodes(name, arg) : set_relation(name, arg)
+          end
         elsif args.length == 2
-          # person.likes(:in, her)
+          # person.likes(her, :in)
           set_relation(name, *args)
         else
           super
         end
       end
 
-      def set_property(name, value)
-        @properties ||= {}
-        @properties[name.to_sym] = value
+      def set_relation_node(name, node, direction=nil)
+        set_relation(name, node, direction)
       end
 
-      def get_property(name)
-        return nil unless @properties
-        @properties[name.to_sym]
+      def get_relation_nodes(name, direction=nil)
+        get_relations(name, direction).map{|r| r.to }
       end
 
-      def set_relation(name, direction, node)
-        @relations_in ||= {}
-        @relations_out ||= {}
-        relation = direction == :in ? @relations_in : @relations_out
-        relation[name.to_sym] ||= []
-        relation[name.to_sym] << node
-      end
-
-      def get_relation(name, direction=nil)
-        @relations_in ||= {}
-        @relations_out ||= {}
-        default = []
+      def set_relation(name, node, direction=nil)
+        name = name.to_s.sub(/!/, '')
         key = name.to_sym
-        direction ||= :both
-        relation = if direction == :in
-          @relations_in[key] || default
+        direction ||= :out
+
+        rel = Relationship.new_with_direction(key, self, node, direction)
+        existing = get_relations(name, direction).select{|r| r == rel}.first
+        return existing if existing
+        @relations[key] ||= []
+        @relations[key] << rel
+        rel
+      end
+
+      def get_relations(name, direction=nil)
+        name = name.to_s.sub(/!/, '')
+        key = name.to_sym
+        @relations ||= {}
+        all = @relations[name.to_sym] || []
+        if direction == :in
+          all.select{|r| r.to == self}
         elsif direction == :out
-          @relations_out[key] || default
+          all.select{|r| r.from == self}
         else
-          get_relation(name, :in) | get_relation(name, :out)
+          all
         end
       end
+
     end
 
     module ClassMethods
@@ -85,6 +123,36 @@ module Morpheus
         def has_relation?(name)
           respond_to?(:relations) && relations.include?(name.to_sym)
         end
+      end
+    end
+  end
+
+  class Relationship
+    include HasProperties
+    attr_reader :type, :from, :to
+
+    def initialize(type, from, to)
+      @type, @from, @to = type.to_sym, from, to
+    end
+
+    def self.new_with_direction(type, from, to, direction=nil)
+      from, to = to, from if direction == :in
+      new(type, from, to)
+    end
+
+    def ==(other)
+      return false unless other
+      type == other.type and from == other.from and to == other.to
+    end
+
+    def method_missing(method, *args, &block)
+      #TODO: Redefine respond_to? and respond_to_missing?
+      if is_a_property_getter?(method, *args)
+        get_property(method)
+      elsif is_a_property_setter?(method, *args)
+        set_property(method, args[0])
+      else
+        super
       end
     end
   end
