@@ -7,13 +7,10 @@ module Morpheus
       include ActiveModel::Validations
       include ActiveModel::Conversion
       include HasProperties
+      include ActsAsPersistent
     end
 
     module InstanceMethods
-      def persisted?
-        raise NotImplementedError.new
-      end
-
       def method_missing(method, *args, &block)
         #TODO: Redefine respond_to? and respond_to_missing?
         name = method.to_s
@@ -94,7 +91,7 @@ module Morpheus
         end
 
         def has_relation?(name)
-          respond_to?(:relations) && relations.include?(name.to_sym)
+          respond_to?(:relations) && (relations || []).include?(name.to_sym)
         end
       end
     end

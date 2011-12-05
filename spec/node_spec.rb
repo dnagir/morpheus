@@ -20,7 +20,6 @@ describe Morpheus::Node do
     it { should respond_to :to_model }
     it { should respond_to :to_param }
     it { should respond_to :to_key }
-    it { should respond_to :persisted? }
   end
 
   it "should behave properly with respond_to"
