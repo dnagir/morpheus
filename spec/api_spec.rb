@@ -35,10 +35,6 @@ describe Morpheus::API::Batching do
   pending
 end
 
-describe Morpheus::API::Cypher do
-  pending
-end
-
 describe Morpheus::API::Gremlin do
   pending
 end
