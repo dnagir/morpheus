@@ -100,6 +100,10 @@ module Morpheus
       def has_relation?(name)
         respond_to?(:relations) && (relations || []).include?(name.to_sym)
       end
+
+      def api_endpoint
+        :nodes
+      end
     end
   end
 

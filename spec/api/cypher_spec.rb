@@ -30,18 +30,17 @@ describe Morpheus::API::Cypher do
   end
 
   subject { Morpheus::API::Cypher.new }
+  before  { subject.stub(:query_url).and_return uri }
 
 
   describe "results" do
-    #before  { FakeWeb.register_uri(:get, uri, :body => body) }
+    before  { FakeWeb.register_uri(:post, uri, :body => body) }
     let(:user_class) do
       Class.new(Morpheus::Node) do
       end
     end
 
     it "should return nodes" do
-      FakeWeb.allow_net_connect = true
-      Morpheus.configure_and_discover_database!
       results = subject.execute(user_class, "start s=node(1234) return s")
       results.first.should be_a user_class
       results.first.name.should == "Mr 4-1"
