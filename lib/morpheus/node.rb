@@ -8,6 +8,7 @@ module Morpheus
       include ActiveModel::Conversion
       include HasProperties
       include ActsAsPersistent
+      include Validators # To allow using as `validates :whatever`
     end
 
     module InstanceMethods
@@ -89,10 +90,10 @@ module Morpheus
         def relations
           @relations
         end
+      end
 
-        def has_relation?(name)
-          respond_to?(:relations) && (relations || []).include?(name.to_sym)
-        end
+      def has_relation?(name)
+        respond_to?(:relations) && (relations || []).include?(name.to_sym)
       end
     end
   end
