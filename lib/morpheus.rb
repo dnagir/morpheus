@@ -14,6 +14,7 @@ require 'multi_json'
 require 'morpheus/api'
 require 'morpheus/database'
 require 'morpheus/sessions'
+require 'morpheus/query'
 require 'morpheus/railtie' if defined?(Rails)
 
 module Morpheus
