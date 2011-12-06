@@ -4,9 +4,6 @@ module Morpheus
 
   module ActsAsPersistent
     extend ActiveSupport::Concern
-    included do
-      attr_reader :id
-    end
 
     module InstanceMethods
       def _session
@@ -14,11 +11,7 @@ module Morpheus
       end
 
       def persisted?
-        !!@id
-      end
-
-      def mark_as_persisted(new_id)
-        @id = new_id
+        !!id
       end
 
       def save_without_validation

@@ -36,7 +36,7 @@ describe Morpheus::Validators::UniqueNodeValidator do
 
     context "when DSL returns anything" do
       before {
-        query.stub_chain(:users, :current).and_return [1,2,3]
+        query.stub_chain(:as, :users, :current).and_return [1,2,3]
       }
       it "should have the message" do
         validate.errors[:email].should include "is already taken"
@@ -56,7 +56,7 @@ describe Morpheus::Validators::UniqueNodeValidator do
 
     describe "when DSL returns no results" do
       before {
-        query.stub_chain(:users, :current).and_return []
+        query.stub_chain(:as, :users, :current).and_return []
       }
       it "should not have any messages" do
         validate.errors[:email].should be_empty

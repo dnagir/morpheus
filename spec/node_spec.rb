@@ -105,5 +105,8 @@ describe Morpheus::Node do
     end
   end
 
+
+  its(:query) { should be_a Morpheus::Query }
+
 end
 

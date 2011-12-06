@@ -8,7 +8,7 @@ module Morpheus
         start_node = Morpheus.root
         path = options[:path]
         raise "Please provide :path => Proc.new { path.to.node } in the options" unless path.respond_to?(:to_proc)
-        query = start_node.query.instance_eval &path.to_proc
+        query = start_node.query.as(record.class).instance_eval &path.to_proc
 
         record.errors[attribute] << "is already taken" if query.any?
       end

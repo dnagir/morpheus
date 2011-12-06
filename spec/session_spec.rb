@@ -1,13 +1,12 @@
 require 'spec_helper'
 
 describe Morpheus::Sessions::BaseSession do
-  let(:db) do
-    Morpheus.stub(:database).and_return double('DB').as_null_object
-    Morpheus.database
-  end
+  let(:db) { double('DB').as_null_object }
 
   before   { db.stub_chain(:service_root, :reference_node).and_return 'http://localhost:7474/db/data/node/123' }
-  its(:reference_node_id) { should == 123}
+
+  subject { Morpheus::Sessions::BaseSession.new(db) }
+
   its(:reference_node)    { should be_a Morpheus::ReferenceNode }
 end
 

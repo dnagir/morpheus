@@ -8,6 +8,7 @@ module Morpheus
       include ActiveModel::Conversion
       include HasProperties
       include ActsAsPersistent
+      include ActsAsRestful
       include Validators # To allow using as `validates :whatever`
     end
 
@@ -80,6 +81,10 @@ module Morpheus
         else
           all
         end
+      end
+
+      def query
+        Query.new(self)
       end
 
     end

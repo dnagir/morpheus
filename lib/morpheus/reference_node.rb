@@ -1,9 +1,9 @@
 module Morpheus
 
   class ReferenceNode < Node
-    def initialize(id)
+    def initialize(node_url)
       super()
-      self.mark_as_persisted id
+      update_rest!({ 'self' => node_url })
     end
   end
 

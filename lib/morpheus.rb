@@ -2,6 +2,7 @@ require 'morpheus/version'
 require 'active_model'
 require 'morpheus/has_properties'
 require 'morpheus/acts_as_persistent'
+require 'morpheus/acts_as_restful'
 require 'morpheus/validators'
 require 'morpheus/relationship'
 require 'morpheus/node'
@@ -35,7 +36,7 @@ module Morpheus
 
   def self.configure_and_discover_database!(options={})
     #TODO: Make it extra-thread-safe
-    database = Database.new(options).discover!
+    Morpheus.database = Database.new(options).discover!
   end
 
   def self.database

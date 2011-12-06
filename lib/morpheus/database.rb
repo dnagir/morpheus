@@ -2,8 +2,10 @@ module Morpheus
   class Database
     attr_accessor :protocol, :server, :port, :service_root
 
-    def initialize
-      @protocol, @server, @port = 'http://', 'localhost', 7474
+    def initialize(options={})
+      @protocol = options.fetch :protocol,  'http://'
+      @server   = options.fetch :server,    'localhost'
+      @port     = options.fetch :port,      7474
     end
 
     def discover!

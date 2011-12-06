@@ -1,21 +1,27 @@
 module Morpheus
   class Query
-    def initialize(start_id)
-      @start_id = start_id
+    def initialize(start)
+      @start = start
+      @target_class = nil
       @paths = []
     end
 
     def to_query
       ::OpenStruct.new({
         :type => :cypher,
-        :query => "START s=node(#{@start_id}) MATCH s#{assemble_paths}last RETURN last"
+        :query => "START s=node(#{@start.id}) MATCH s#{assemble_paths}last RETURN last"
       })
+    end
+
+    def as(target_class)
+      @target_class = target_class
+      self
     end
 
     def execute!
       q = self.to_query
       api = Morpheus::API.const_get(q.type.to_s.camelize).new
-      api.execute q.query, {}
+      api.execute @target_class, q.query, {}
     end
 
     protected

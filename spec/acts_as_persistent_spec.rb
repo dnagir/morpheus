@@ -4,6 +4,7 @@ describe Morpheus::ActsAsPersistent do
   let(:person_class) do
     Class.new do
       include Morpheus::ActsAsPersistent
+      include Morpheus::ActsAsRestful
       include Morpheus::HasProperties
       def self.api_endpoint; :relationships; end
 
@@ -16,7 +17,6 @@ describe Morpheus::ActsAsPersistent do
   before { Morpheus.stub(:current_session).and_return session }
 
   describe "module interface" do
-    it { should respond_to :id }
     it { should respond_to :persisted? }
     it { should respond_to :save }
     it { should respond_to :save! }
@@ -24,7 +24,6 @@ describe Morpheus::ActsAsPersistent do
     it { should respond_to :destroy! }
     it { should respond_to :update_attributes }
     it { should respond_to :update_attributes! }
-    it { should respond_to :mark_as_persisted }
 
     context "class methods" do
       subject { person_class }
@@ -49,7 +48,7 @@ describe Morpheus::ActsAsPersistent do
     end
 
     context "when object exists" do
-      before { subject.mark_as_persisted 123 }
+      before { subject.update_rest!({"self" => "http://abc/node/123"}) }
       its(:id) { should == 123 }
       its(:persisted?) { should be_true }
 
@@ -75,7 +74,7 @@ describe Morpheus::ActsAsPersistent do
     end
 
     context "when object exists" do
-      before { subject.mark_as_persisted 123 }
+      before { subject.update_rest!( {'self' => 'http://asd/node/123'} ) }
       its(:destroy)  { should == true }
       its(:destroy!) { should == true }
 

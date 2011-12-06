@@ -1,19 +1,20 @@
 module Morpheus
   module Sessions
+
     class BaseSession
+      attr_accessor :db
+
+      def initialize(db)
+        @db = db
+      end
+
       def reference_node
-        ReferenceNode.new reference_node_id
+        node_url = db.service_root.reference_node
+        ReferenceNode.new node_url
       end
-
-      def reference_node_id
-        # TODO: Review this
-        node_url = Morpheus.database.service_root.reference_node
-        node_url.match(/(\d+)\/?$/)[1].to_i
-      end
-
     end
 
-    class SyncSession
+    class SyncSession < BaseSession
     end
 
     class EmSynchronySession
