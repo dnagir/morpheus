@@ -13,8 +13,8 @@ describe Morpheus::ActsAsPersistent do
   end
 
   subject { person_class.new }
-  let(:session) { double('session').as_null_object }
-  before { Morpheus.stub(:current_session).and_return session }
+  let(:api)             { double('API').as_null_object }
+  before { Morpheus::API::Relationships.stub(:new).and_return api }
 
   describe "module interface" do
     it { should respond_to :persisted? }
@@ -42,7 +42,7 @@ describe Morpheus::ActsAsPersistent do
     end
 
     it "should queue the CREATE operation with properties" do
-      session.should_receive(:create).with(:relationships, {:name => 'Dima'})
+      api.should_receive(:create).with({:name => 'Dima'})
       subject.set_property(:name, 'Dima')
       subject.save_without_validation
     end
@@ -54,11 +54,11 @@ describe Morpheus::ActsAsPersistent do
 
       it "should queue the UPDATE operation" do
         subject.set_property(:name, 'Dima')
-        session.should_receive(:update).with(:relationships, 123, {:name => 'Dima'})
+        api.should_receive(:update).with(123, {:name => 'Dima'})
         subject.save_without_validation    end
 
       it "should queue the DELETE operation" do
-        session.should_receive(:delete).with(:relationships, 123)
+        api.should_receive(:delete).with(123)
         subject.destroy!
       end
 
@@ -68,7 +68,7 @@ describe Morpheus::ActsAsPersistent do
 
   describe "#destroy and #destroy!" do
     it "should be ignored for new object" do
-      session.should_not_receive(:delete)
+      api.should_not_receive(:delete)
       subject.destroy!
       subject.destroy
     end
@@ -79,12 +79,12 @@ describe Morpheus::ActsAsPersistent do
       its(:destroy!) { should == true }
 
       it "should queue the DELETE operation" do
-        session.should_receive(:delete).with(:relationships, 123)
+        api.should_receive(:delete).with(123)
         subject.destroy!
       end
 
       it "should queue the DELETE operation (non-bang)" do
-        session.should_receive(:delete).with(:relationships, 123)
+        api.should_receive(:delete).with(123)
         subject.destroy
       end
 
@@ -119,7 +119,7 @@ describe Morpheus::ActsAsPersistent do
   describe ".get" do
     subject { person_class }
     it "should queue GET" do
-      session.should_receive(:get).with(person_class, :relationships, 123)
+      api.should_receive(:get).with(person_class, 123)
       subject.get(123)
     end
   end

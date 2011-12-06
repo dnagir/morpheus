@@ -6,19 +6,19 @@ module Morpheus
     extend ActiveSupport::Concern
 
     module InstanceMethods
-      def _session
-        Morpheus.current_session
-      end
-
       def persisted?
         !!id
       end
 
+      def api
+        self.class.api
+      end
+
       def save_without_validation
         if persisted?
-          _session.update(self.class.api_endpoint, id, get_properties)
+          api.update(id, get_properties)
         else
-          _session.create(self.class.api_endpoint, get_properties)
+          api.create(get_properties)
         end
       end
 
@@ -56,7 +56,7 @@ module Morpheus
 
       def destroy!
         if persisted?
-          _session.delete(self.class.api_endpoint, id)
+          api.delete(id)
           true
         else
           false
@@ -84,8 +84,12 @@ module Morpheus
     end
 
     module ClassMethods
+      def api
+        Morpheus::API.const_get(self.api_endpoint.to_s.camelize).new
+      end
+
       def get(id)
-        Morpheus.current_session.get(self, self.api_endpoint, id)
+        api.get(self, id)
       end
     end
 
